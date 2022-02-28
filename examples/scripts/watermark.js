@@ -488,18 +488,31 @@ function center(alpha) {
  * @param {String} font - same as the CSS font property
  * @param {String} fillStyle
  * @param {Number} alpha
+ * @param {String} textBgColor - background color for text
  * @return {Function}
  */
-function text_atPos(xFn, yFn, text, font, fillStyle, alpha) {
+function text_atPos(xFn, yFn, text, font, fillStyle, alpha, textBgColor) {
   alpha || (alpha = 1.0);
   return function (target) {
     var context = target.getContext('2d');
     context.save();
-    context.globalAlpha = alpha;
-    context.fillStyle = fillStyle;
     context.font = font;
+    context.globalAlpha = alpha;
+    context.textBaseline = 'top';
     var metrics = context.measureText(text);
-    context.fillText(text, xFn(target, metrics, context), yFn(target, metrics, context));
+    var textX = xFn(target, metrics, context);
+    var textY = yFn(target, metrics, context);
+    var fontSize = font.split('px')[0];
+
+    if (textBgColor && font) {
+      // color for background
+      context.fillStyle = textBgColor;
+      var fontBgPadding = 5;
+      context.fillRect(textX - fontBgPadding, textY - fontBgPadding, metrics.width + fontBgPadding * 2, parseInt(font.split('px')[0]) + fontBgPadding * 2);
+    }
+
+    context.fillStyle = fillStyle;
+    context.fillText(text, textX, textY);
     context.restore();
     return target;
   };
@@ -511,16 +524,22 @@ function text_atPos(xFn, yFn, text, font, fillStyle, alpha) {
  * @param {String} font - same as the CSS font property
  * @param {String} fillStyle
  * @param {Number} alpha - control text transparency
+ * @param {String} textBgColor - background color for text
  * @param {Number} y - height in text metrics is not very well supported. This is a manual value
  * @return {Function}
  */
 
-function text_lowerRight(text, font, fillStyle, alpha, y) {
+function text_lowerRight(text) {
+  var font = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '28px serif';
+  var fillStyle = arguments.length > 2 ? arguments[2] : undefined;
+  var alpha = arguments.length > 3 ? arguments[3] : undefined;
+  var textBgColor = arguments.length > 4 ? arguments[4] : undefined;
+  var y = arguments.length > 5 ? arguments[5] : undefined;
   return text_atPos(function (target, metrics) {
     return target.width - (metrics.width + 10);
   }, function (target) {
-    return y || target.height - 10;
-  }, text, font, fillStyle, alpha);
+    return y || target.height - parseInt(font.split('px')[0]) - 10;
+  }, text, font, fillStyle, alpha, textBgColor);
 }
 /**
  * Write text to the lower left corner of the target canvas
@@ -529,16 +548,22 @@ function text_lowerRight(text, font, fillStyle, alpha, y) {
  * @param {String} font - same as the CSS font property
  * @param {String} fillStyle
  * @param {Number} alpha - control text transparency
+ * @param {String} textBgColor - background color for text
  * @param {Number} y - height in text metrics is not very well supported. This is a manual value
  * @return {Function}
  */
 
-function text_lowerLeft(text, font, fillStyle, alpha, y) {
+function text_lowerLeft(text) {
+  var font = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '28px serif';
+  var fillStyle = arguments.length > 2 ? arguments[2] : undefined;
+  var alpha = arguments.length > 3 ? arguments[3] : undefined;
+  var textBgColor = arguments.length > 4 ? arguments[4] : undefined;
+  var y = arguments.length > 5 ? arguments[5] : undefined;
   return text_atPos(function () {
     return 10;
   }, function (target) {
-    return y || target.height - 10;
-  }, text, font, fillStyle, alpha);
+    return y || target.height - parseInt(font.split('px')[0]) - 10;
+  }, text, font, fillStyle, alpha, textBgColor);
 }
 /**
  * Write text to the upper right corner of the target canvas
@@ -547,16 +572,22 @@ function text_lowerLeft(text, font, fillStyle, alpha, y) {
  * @param {String} font - same as the CSS font property
  * @param {String} fillStyle
  * @param {Number} alpha - control text transparency
+ * @param {String} textBgColor - background color for text
  * @param {Number} y - height in text metrics is not very well supported. This is a manual value
  * @return {Function}
  */
 
-function text_upperRight(text, font, fillStyle, alpha, y) {
+function text_upperRight(text) {
+  var font = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '28px serif';
+  var fillStyle = arguments.length > 2 ? arguments[2] : undefined;
+  var alpha = arguments.length > 3 ? arguments[3] : undefined;
+  var textBgColor = arguments.length > 4 ? arguments[4] : undefined;
+  var y = arguments.length > 5 ? arguments[5] : undefined;
   return text_atPos(function (target, metrics) {
     return target.width - (metrics.width + 10);
   }, function () {
     return y || 20;
-  }, text, font, fillStyle, alpha);
+  }, text, font, fillStyle, alpha, textBgColor);
 }
 /**
  * Write text to the upper left corner of the target canvas
@@ -565,16 +596,22 @@ function text_upperRight(text, font, fillStyle, alpha, y) {
  * @param {String} font - same as the CSS font property
  * @param {String} fillStyle
  * @param {Number} alpha - control text transparency
+ * @param {String} textBgColor - background color for text
  * @param {Number} y - height in text metrics is not very well supported. This is a manual value
  * @return {Function}
  */
 
-function text_upperLeft(text, font, fillStyle, alpha, y) {
+function text_upperLeft(text) {
+  var font = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '28px serif';
+  var fillStyle = arguments.length > 2 ? arguments[2] : undefined;
+  var alpha = arguments.length > 3 ? arguments[3] : undefined;
+  var textBgColor = arguments.length > 4 ? arguments[4] : undefined;
+  var y = arguments.length > 5 ? arguments[5] : undefined;
   return text_atPos(function () {
     return 10;
   }, function () {
     return y || 20;
-  }, text, font, fillStyle, alpha);
+  }, text, font, fillStyle, alpha, textBgColor);
 }
 /**
  * Write text to the center of the target canvas
@@ -583,18 +620,19 @@ function text_upperLeft(text, font, fillStyle, alpha, y) {
  * @param {String} font - same as the CSS font property
  * @param {String} fillStyle
  * @param {Number} alpha - control text transparency
+ * @param {String} textBgColor - background color for text
  * @param {Number} y - height in text metrics is not very well supported. This is a manual value
  * @return {Function}
  */
 
-function text_center(text, font, fillStyle, alpha, y) {
+function text_center(text, font, fillStyle, alpha, textBgColor, y) {
   return text_atPos(function (target, metrics, ctx) {
     ctx.textAlign = 'center';
     return target.width / 2;
   }, function (target, metrics, ctx) {
     ctx.textBaseline = 'middle';
     return target.height / 2;
-  }, text, font, fillStyle, alpha);
+  }, text, font, fillStyle, alpha, textBgColor);
 }
 // CONCATENATED MODULE: ./lib/style/index.js
 
